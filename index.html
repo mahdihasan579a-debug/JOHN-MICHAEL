@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080b10">
+<title>KRAVEN - App Download Center</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080b10;color:#fff;font-family:Arial,sans-serif;min-height:100vh}
+.header{text-align:center;padding:45px 18px 20px}
+.header h1{margin:0;font-size:46px;letter-spacing:1px}
+.header p{margin:18px 0 0;color:#aeb3c0;font-size:23px}
+.container{padding:18px 22px;max-width:650px;margin:auto}
+.card{background:linear-gradient(145deg,#11151c,#15111c);border:2px solid #252c36;border-radius:24px;padding:20px;margin:0 auto 18px}
+.card h2{margin:0;font-size:23px}
+.card p{color:#aeb3c0;font-size:17px;margin:10px 0 16px}
+.download{display:block;width:100%;padding:17px;background:#32d17d;color:#07100b;text-align:center;text-decoration:none;border-radius:18px;font-size:21px;font-weight:bold;border:0;cursor:pointer}
+.download:disabled{opacity:.7}
+.status{text-align:center;color:#aeb3c0;padding:25px;font-size:18px}
+.error{color:#ff8d8d}
+.footer{text-align:center;color:#777d88;font-size:16px;margin:35px 20px 25px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>KRAVEN</h1>
+  <p>App Download Center</p>
+</div>
+
+<div class="container" id="apps">
+  <div class="status">Loading apps...</div>
+</div>
+
+<div class="footer">MOD BY KRAVEN</div>
+
+<script>
+const CONFIG_URL = "https://raw.githubusercontent.com/mahdihasan579a-debug/JOHN-MICHAEL/refs/heads/main/Config.json";
+
+async function loadApps() {
+  const container = document.getElementById("apps");
+
+  try {
+    const response = await fetch(CONFIG_URL + "?v=" + Date.now(), {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("HTTP " + response.status);
+    }
+
+    const data = await response.json();
+
+    if (!data || !Array.isArray(data.apps)) {
+      throw new Error('Config.json must contain an "apps" array.');
+    }
+
+    container.innerHTML = "";
+
+    if (data.apps.length === 0) {
+      container.innerHTML = '<div class="status">Walang app na available.</div>';
+      return;
+    }
+
+    data.apps.forEach(app => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const title = document.createElement("h2");
+      title.textContent = app.name || "App";
+
+      const description = document.createElement("p");
+      description.textContent = app.description || "APK • Download";
+
+      const button = document.createElement("button");
+      button.className = "download";
+      button.type = "button";
+      button.textContent = "↓ DOWNLOAD";
+
+      button.addEventListener("click", () => {
+        if (!app.link) {
+          alert("Walang download link para sa app na ito.");
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Opening...";
+
+        window.open(app.link, "_blank", "noopener,noreferrer");
+
+        setTimeout(() => {
+          button.disabled = false;
+          button.textContent = "↓ DOWNLOAD";
+        }, 2000);
+      });
+
+      card.append(title, description, button);
+      container.appendChild(card);
+    });
+
+  } catch (error) {
+    console.error("Config error:", error);
+
+    container.innerHTML =
+      '<div class="status error">' +
+      'Hindi ma-load ang online config.<br>' +
+      '<small>Siguraduhing nasa GitHub repository ang Config.json at tama ang URL.</small>' +
+      '</div>';
+  }
+}
+
+loadApps();
+</script>
+
+</body>
+</html>
